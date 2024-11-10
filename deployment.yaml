@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dockerk8s-app-deployment
+  annotations:
+    kubernetes.io/change-cause: "Updating my code v1 to v2"
+spec:
+  replicas: 4
+  selector:
+    matchLabels:
+      app: dockerk8s-app
+  template:
+    metadata:
+      name: mydockerk8s
+      labels:
+        env: prod
+        app: dockerk8s-app
+        app.kubernetes.io/name: dockerk8s-app
+    spec:
+      containers:
+        - name: dockerk8s-app
+          image: afzal42/dockerk8s:v2
+          ports:
+            - containerPort: 80
+              name: http-web-api
+          resources:
+            requests:
+              cpu: 100m
+              memory: 100Mi
+            limits:
+              cpu: 200m
+              memory: 200Mi
+          env:
+            - name: ASPNETCORE_URLS
+              value: http://+:80
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-lb-service
+spec:
+  selector:
+    app.kubernetes.io/name: dockerk8s-app
+  ports:
+    - name: dockerk8s-app-port
+      protocol: TCP
+      port: 8080
+      targetPort: 80
+  type: LoadBalancer
+

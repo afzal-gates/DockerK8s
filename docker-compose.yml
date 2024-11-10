@@ -1,0 +1,80 @@
+version: '3'
+
+services:
+  db1:
+    container_name: sqlNode1
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    hostname: sqlNode1
+    domainname: test_net
+    # volumes:
+    #   - mssql-server-linux-datadb1:/var/opt/mssql/data/sqlNode1
+    environment:
+      MSSQL_SA_PASSWORD: "Pa55w0rd!"
+      ACCEPT_EULA: "Y"
+    ports:
+      - "14331:1433"
+      - "15021:5022"
+    extra_hosts:
+      sqlNode2.test_net: '172.18.0.22'
+      sqlNode3.test_net: '172.18.0.23'
+    networks:
+      internal:
+        ipv4_address: 172.18.0.21
+    # networks:
+    #   - internal
+
+  db2:
+    container_name: sqlNode2
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    hostname: sqlNode2
+    domainname: test_net
+    # volumes:
+    #   - mssql-server-linux-datadb2:/var/opt/mssql/data/sqlNode2
+    environment:
+      MSSQL_SA_PASSWORD: "Pa55w0rd!"
+      ACCEPT_EULA: "Y"
+    ports:
+      - "14332:1433"
+      - "15022:5022"
+    extra_hosts:
+      sqlNode1.test_net: '172.18.0.21'
+      sqlNode3.test_net: '172.18.0.23'
+    networks:
+      internal:
+        ipv4_address: 172.18.0.22
+    # networks:
+    #   - internal
+
+  db3:
+    container_name: sqlNode3
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    hostname: sqlNode3
+    domainname: test_net
+    # volumes:
+    #   - mssql-server-linux-datadb3:/var/opt/mssql/data/sqlNode3
+    environment:
+      MSSQL_SA_PASSWORD: "Pa55w0rd!"
+      ACCEPT_EULA: "Y"
+    ports:
+      - "14333:1433"
+      - "15023:5022"
+    extra_hosts:
+      sqlNode1.test_net: '172.18.0.21'
+      sqlNode2.test_net: '172.18.0.22'
+    networks:
+      internal:
+        ipv4_address: 172.18.0.23
+    # networks:
+    #   - internal
+
+# volumes:
+#   mssql-server-linux-datadb1:
+#   mssql-server-linux-datadb2:  
+#   mssql-server-linux-datadb3:  
+  
+networks:
+  internal: 
+    ipam:
+      driver: bridge
+      config:
+        - subnet: 172.18.0.0/16
